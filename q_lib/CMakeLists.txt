@@ -36,8 +36,7 @@ set(Q_HEADERS
    ${CMAKE_CURRENT_SOURCE_DIR}/include/fx/special.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/fx/waveshaper.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/pitch/period_detector.hpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/include/pitch/basic_pitch_detector.hpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/include/pitch/pd_preprocessor.hpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/include/pitch/pitch_detector.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/support/value.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/support/audio_stream.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/support/base.hpp
@@ -53,6 +52,7 @@ set(Q_HEADERS
    ${CMAKE_CURRENT_SOURCE_DIR}/include/synth/sin.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/synth/square.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/synth/triangle.hpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/include/synth/noise.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/antialiasing.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/bitset.hpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/utility/bitstream_acf.hpp

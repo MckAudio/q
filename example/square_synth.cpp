@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -7,8 +7,7 @@
 #include <q/synth/square.hpp>
 #include <q/synth/envelope.hpp>
 #include <q/fx/lowpass.hpp>
-#include <q/fx/waveshaper.hpp>
-#include <q/fx/special.hpp>
+#include <q/fx/clip.hpp>
 #include <q_io/audio_stream.hpp>
 #include <q_io/midi_stream.hpp>
 #include "example.hpp"

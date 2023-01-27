@@ -1,5 +1,5 @@
 ###############################################################################
-#  Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+#  Copyright (c) 2014-2020 Joel de Guzman. All rights reserved.
 #
 #  Distributed under the Boost Software License, Version 1.0. (See accompanying
 #  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -14,13 +14,14 @@ project(q_test)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
       OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}-ftemplate-backtrace-limit=0")
 endif()
 
 set(APP_SOURCES
 
    bitset.cpp
    decibel.cpp
+   notes.cpp
 
    gen_basic_square.cpp
    gen_basic_saw.cpp
@@ -38,20 +39,24 @@ set(APP_SOURCES
    biquad_lp.cpp
    envelope_follower.cpp
    rms_envelope_follower.cpp
-   moving_average1.cpp
+   moving_average.cpp
    moving_average2.cpp
-   moving_maximum1.cpp
+   moving_maximum.cpp
    moving_maximum2.cpp
    comb.cpp
-   compressor_expander1.cpp
+   compressor_expander.cpp
    compressor_expander2.cpp
    compressor_ff_fb.cpp
    peak_detector.cpp
+   pitch_detector.cpp
    period_detector.cpp
-   pitch_detector1.cpp
-   pitch_detector2.cpp
-   dual_pitch_detector.cpp
+   pitch_detector_ex.cpp
    fft.cpp
+   signal_conditioner.cpp
+   slope.cpp
+   zero_crossing.cpp
+   dynamic_smoother.cpp
+   signal_slope.cpp
 )
 
 foreach(testsourcefile ${APP_SOURCES})

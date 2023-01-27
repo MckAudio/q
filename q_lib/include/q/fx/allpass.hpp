@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -24,7 +24,7 @@ namespace cycfi::q
 
       // 90 deg shift at frequency f
       one_pole_allpass(frequency freq, std::uint32_t sps)
-       : a(fasttan((pi * double(freq) / sps) - 0.25_pi))
+       : a(fasttan((pi * as_double(freq) / sps) - 0.25_pi))
       {}
 
       float operator()(float s)
@@ -37,7 +37,7 @@ namespace cycfi::q
       // set pivot (90 deg shift at frequency f)
       void pivot(frequency freq, std::uint32_t sps)
       {
-         a = fasttan((pi * double(freq) / sps) - 0.25_pi);
+         a = fasttan((pi * as_double(freq) / sps) - 0.25_pi);
       }
 
       float y = 0.0f, a;

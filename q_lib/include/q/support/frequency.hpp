@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -29,12 +29,28 @@ namespace cycfi::q
       using base_type::base_type;
 
       constexpr explicit            frequency(double val) : base_type(val) {}
+
       constexpr explicit            frequency(duration d);
 
+      [[deprecated("Use as_double(db) instead of double(db)")]]
       constexpr explicit operator   double() const   { return rep; }
+
+      [[deprecated("Use as_float(db) instead of float(db)")]]
       constexpr explicit operator   float() const    { return rep; }
+
       constexpr q::period           period() const;
    };
+
+   // Free functions
+   constexpr double as_double(frequency f)
+   {
+      return f.rep;
+   }
+
+   constexpr float as_float(frequency f)
+   {
+      return f.rep;
+   }
 
    ////////////////////////////////////////////////////////////////////////////
    struct duration : value<double, duration>
@@ -44,9 +60,23 @@ namespace cycfi::q
 
       constexpr explicit            duration(double val) : base_type(val) {}
 
+      [[deprecated("Use as_double(db) instead of double(db)")]]
       constexpr explicit operator   double() const   { return rep; }
+
+      [[deprecated("Use as_float(db) instead of float(db)")]]
       constexpr explicit operator   float() const    { return rep; }
    };
+
+   // Free functions
+   constexpr double as_double(duration d)
+   {
+      return d.rep;
+   }
+
+   constexpr float as_float(duration d)
+   {
+      return d.rep;
+   }
 
    ////////////////////////////////////////////////////////////////////////////
    struct period : duration
@@ -71,7 +101,7 @@ namespace cycfi::q
 #if !defined(Q_DONT_USE_THREADS)
    inline void sleep(duration t)
    {
-      std::this_thread::sleep_for(std::chrono::duration<double>(double(t)));
+      std::this_thread::sleep_for(std::chrono::duration<double>(as_double(t)));
    }
 #endif
 

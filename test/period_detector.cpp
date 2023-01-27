@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -51,7 +51,7 @@ result_type process(
    auto const&          edges = pd.edges();
 
    q::bitstream_acf<>   bacf{ bits };
-   auto                 min_period = float(highest_freq.period()) * sps;
+   auto                 min_period = as_float(highest_freq.period()) * sps;
 
    float y = 0.15;
    bool first = true;
@@ -170,7 +170,7 @@ struct params
 std::vector<float>
 gen_harmonics(q::frequency freq, params const& params_)
 {
-   auto period = double(sps / freq);
+   auto period = as_double(sps / freq);
    float offset = params_._offset;
    std::size_t buff_size = sps / (1 / 100E-3); // 100ms
 

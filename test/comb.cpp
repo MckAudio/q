@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -66,7 +66,7 @@ void process(std::string name, q::frequency f)
    src.read(in);
 
    ////////////////////////////////////////////////////////////////////////////
-   process(name, in, sps, float(f.period()) * sps);
+   process(name, in, sps, as_float(f.period()) * sps);
 }
 
 int main()

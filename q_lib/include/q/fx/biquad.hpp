@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -7,6 +7,8 @@
 #define CYCFI_Q_BIQUAD_HPP_FEBRUARY_8_2018
 
 #include <q/support/base.hpp>
+#include <q/support/frequency.hpp>
+#include <q/support/literals.hpp>
 #include <cmath>
 
 namespace cycfi::q
@@ -70,7 +72,7 @@ namespace cycfi::q
       struct config_biquad
       {
          config_biquad(frequency f, std::uint32_t sps)
-          : omega(2_pi * double(f) / sps)
+          : omega(2_pi * as_double(f) / sps)
           , sin(std::sin(omega))
           , cos(std::cos(omega))
          {}

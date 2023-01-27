@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -28,6 +28,11 @@ namespace cycfi::q
          return y;
       }
 
+      void reset()
+      {
+         y = 0.0f;
+      }
+
       float y = 0.0f;
    };
 
@@ -39,6 +44,17 @@ namespace cycfi::q
       float operator()(float s)
       {
          return _d2(_d1(s));
+      }
+
+      float operator()() const
+      {
+         return _d2();
+      }
+
+      void reset()
+      {
+         _d1.reset();
+         _d2.reset();
       }
 
       delay1 _d1, _d2;
@@ -60,7 +76,7 @@ namespace cycfi::q
       using base_type = Base;
 
       basic_delay(duration max_delay, std::uint32_t sps)
-       : base_type(std::size_t(std::ceil(double(max_delay.count()) * sps)))
+       : base_type(std::size_t(std::ceil(as_double(max_delay) * sps)))
       {}
 
       basic_delay(std::size_t max_delay_samples)

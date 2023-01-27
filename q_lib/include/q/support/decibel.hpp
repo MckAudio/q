@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -12,125 +12,192 @@
 namespace cycfi::q
 {
    ////////////////////////////////////////////////////////////////////////////
+   // decibel is a highly optimized class for dealing with decibels. The
+   // class provides fast conversion from linear to decibel and back. The
+   // decibel value is non-linear. It operates on the logarithmic domain. The
+   // decibel class is perfectly suitable for dynamics processing (e.g.
+   // compressors and limiters and envelopes). Q provides fast decibel
+   // computations using lookup tables and fast math computations for
+   // converting to and from scalars.
+   ////////////////////////////////////////////////////////////////////////////
    struct decibel
    {
       struct _direct {};
       constexpr static _direct direct = {};
 
-      constexpr            decibel() : val(0.0f) {}
-      constexpr explicit   decibel(double val);
-      constexpr            decibel(double val, _direct) : val(val) {}
+      constexpr            decibel() : rep(0.0f) {}
+      explicit             decibel(double val);
+      constexpr            decibel(double val, _direct) : rep(val) {}
 
-      constexpr explicit   operator double() const    { return detail::db2a(val); }
-      constexpr explicit   operator float() const     { return detail::db2a(val); }
-      constexpr decibel    operator+() const          { return { val, direct }; }
-      constexpr decibel    operator-() const          { return { -val, direct }; }
+      [[deprecated("Use as_double(db) instead of double(db)")]]
+      constexpr explicit   operator double() const;
 
-      constexpr decibel&   operator+=(decibel b)      { val += b.val; return *this; }
-      constexpr decibel&   operator-=(decibel b)      { val -= b.val; return *this; }
-      constexpr decibel&   operator*=(decibel b)      { val *= b.val; return *this; }
-      constexpr decibel&   operator/=(decibel b)      { val /= b.val; return *this; }
+      [[deprecated("Use as_float(db) instead of float(db)")]]
+      constexpr explicit   operator float() const;
 
-      double val = 0.0f;
+      constexpr decibel    operator+() const          { return {rep, direct }; }
+      constexpr decibel    operator-() const          { return {-rep, direct }; }
+
+      constexpr decibel&   operator+=(decibel b)      { rep += b.rep; return *this; }
+      constexpr decibel&   operator-=(decibel b)      { rep -= b.rep; return *this; }
+      constexpr decibel&   operator*=(decibel b)      { rep *= b.rep; return *this; }
+      constexpr decibel&   operator/=(decibel b)      { rep /= b.rep; return *this; }
+
+      double rep = 0.0f;
    };
 
-   constexpr decibel::decibel(double val)
-    : val(detail::a2db(val))
+   // Free functions
+   constexpr double  as_double(decibel db);
+   constexpr float   as_float(decibel db);
+
+   constexpr decibel operator-(decibel a, decibel b);
+   constexpr decibel operator+(decibel a, decibel b);
+
+   constexpr decibel operator*(decibel a, decibel b);
+   constexpr decibel operator*(decibel a, double b);
+   constexpr decibel operator*(decibel a, float b);
+   constexpr decibel operator*(decibel a, int b);
+   constexpr decibel operator*(double a, decibel b);
+   constexpr decibel operator*(float a, decibel b);
+   constexpr decibel operator*(int a, decibel b);
+
+   inline decibel    operator/(decibel a, decibel b);
+   inline decibel    operator/(decibel a, double b);
+   inline decibel    operator/(decibel a, float b);
+   inline decibel    operator/(decibel a, int b);
+
+   constexpr bool    operator==(decibel a, decibel b);
+   constexpr bool    operator!=(decibel a, decibel b);
+   constexpr bool    operator<(decibel a, decibel b);
+   constexpr bool    operator<=(decibel a, decibel b);
+   constexpr bool    operator>(decibel a, decibel b);
+   constexpr bool    operator>=(decibel a, decibel b);
+
+   ////////////////////////////////////////////////////////////////////////////
+   // Inlines
+   ////////////////////////////////////////////////////////////////////////////
+   constexpr double as_double(decibel db)
+   {
+      return detail::db2a(db.rep);
+   }
+
+   constexpr float as_float(decibel db)
+   {
+      return detail::db2a(db.rep);
+   }
+
+   inline decibel approx_db(float val)
+   {
+      return decibel{20.0f*faster_log10(val), decibel::direct};
+   }
+
+   inline decibel::decibel(double val)
+    : rep(20.0f * fast_log10(val))
    {}
+
+   constexpr decibel::operator double() const
+   {
+      return as_double(*this);
+   }
+
+   constexpr decibel::operator float() const
+   {
+      return as_float(*this);
+   }
 
    constexpr decibel operator-(decibel a, decibel b)
    {
-      return decibel{ a.val - b.val, decibel::direct };
+      return decibel{a.rep - b.rep, decibel::direct};
    }
 
    constexpr decibel operator+(decibel a, decibel b)
    {
-      return decibel{ a.val + b.val, decibel::direct };
+      return decibel{a.rep + b.rep, decibel::direct};
    }
 
    constexpr decibel operator*(decibel a, decibel b)
    {
-      return decibel{ a.val * b.val, decibel::direct };
+      return decibel{a.rep * b.rep, decibel::direct};
    }
 
    constexpr decibel operator*(decibel a, double b)
    {
-      return decibel{ a.val * b, decibel::direct };
+      return decibel{a.rep * b, decibel::direct};
    }
 
    constexpr decibel operator*(decibel a, float b)
    {
-      return decibel{ a.val * b, decibel::direct };
+      return decibel{a.rep * b, decibel::direct};
    }
 
    constexpr decibel operator*(decibel a, int b)
    {
-      return decibel{ a.val * b, decibel::direct };
+      return decibel{a.rep * b, decibel::direct};
    }
 
    constexpr decibel operator*(double a, decibel b)
    {
-      return decibel{ a * b.val, decibel::direct };
+      return decibel{a * b.rep, decibel::direct};
    }
 
    constexpr decibel operator*(float a, decibel b)
    {
-      return decibel{ a * b.val, decibel::direct };
+      return decibel{a * b.rep, decibel::direct};
    }
 
    constexpr decibel operator*(int a, decibel b)
    {
-      return decibel{ a * b.val, decibel::direct };
+      return decibel{a * b.rep, decibel::direct};
    }
 
    inline decibel operator/(decibel a, decibel b)
    {
-      return decibel{ a.val / b.val, decibel::direct };
+      return decibel{a.rep / b.rep, decibel::direct};
    }
 
    inline decibel operator/(decibel a, double b)
    {
-      return decibel{ a.val / b, decibel::direct };
+      return decibel{a.rep / b, decibel::direct};
    }
 
    inline decibel operator/(decibel a, float b)
    {
-      return decibel{ a.val / b, decibel::direct };
+      return decibel{a.rep / b, decibel::direct};
    }
 
    inline decibel operator/(decibel a, int b)
    {
-      return decibel{ a.val / b, decibel::direct };
+      return decibel{a.rep / b, decibel::direct};
    }
 
    constexpr bool operator==(decibel a, decibel b)
    {
-      return a.val == b.val;
+      return a.rep == b.rep;
    }
 
    constexpr bool operator!=(decibel a, decibel b)
    {
-      return a.val != b.val;
+      return a.rep != b.rep;
    }
 
    constexpr bool operator<(decibel a, decibel b)
    {
-      return a.val < b.val;
+      return a.rep < b.rep;
    }
 
    constexpr bool operator<=(decibel a, decibel b)
    {
-      return a.val <= b.val;
+      return a.rep <= b.rep;
    }
 
    constexpr bool operator>(decibel a, decibel b)
    {
-      return a.val > b.val;
+      return a.rep > b.rep;
    }
 
    constexpr bool operator>=(decibel a, decibel b)
    {
-      return a.val >= b.val;
+      return a.rep >= b.rep;
    }
 }
 

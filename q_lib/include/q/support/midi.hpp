@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (C) 2012-2021 Joel de Guzman. All rights reserved.
+   Copyright (C) 2012-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -7,7 +7,7 @@
 #define CYCFI_Q_MIDI_HPP_OCTOBER_8_2012
 
 #include <cstdint>
-#include <q/support/notes.hpp>
+#include <q/support/note_names.hpp>
 
 #if defined(B0)
 # undef B0

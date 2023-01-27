@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -8,10 +8,10 @@
 
 #include <q/support/literals.hpp>
 #include <q/fx/dynamic.hpp>
-#include <q/fx/waveshaper.hpp>
-#include <q/fx/moving_average.hpp>
+#include <q/fx/clip.hpp>
 #include <q/fx/noise_gate.hpp>
 #include <q/fx/lowpass.hpp>
+#include <q/fx/biquad.hpp>
 
 namespace cycfi::q
 {
@@ -25,24 +25,26 @@ namespace cycfi::q
 
       struct config
       {
-         // Signal envelope
-         duration             env_release             = 50_ms;
+         // Pre clip
+         decibel              pre_clip_level          = -10_dB;
 
          // Compressor
-         duration             comp_release            = 30_ms;
          decibel              comp_threshold          = -27_dB;
-         float                comp_slope              = 1.0/4;
+         float                comp_slope              = 1.0/6;
          float                comp_gain               = 10;
 
          // Gate
+         duration             attack_width            = 500_us;
          decibel              gate_onset_threshold    = -33_dB;
-         decibel              gate_release_threshold  = -45_dB;
+         decibel              gate_release_threshold  = -55_dB;
          duration             gate_release            = 10_ms;
       };
 
                               template <typename Config>
                               signal_conditioner(
                                  Config const& conf
+                               , frequency lowest_freq
+                               , frequency highest_freq
                                , std::uint32_t sps
                               );
 
@@ -58,48 +60,15 @@ namespace cycfi::q
 
    private:
 
-      peak_envelope_follower  _env;
+      using noise_gate = basic_noise_gate<50>;
+
+      clip                    _clip;
+      dynamic_smoother        _sm;
+      fast_envelope_follower  _env;
       compressor              _comp;
       float                   _makeup_gain;
       noise_gate              _gate;
       envelope_follower       _gate_env;
-   };
-
-   ////////////////////////////////////////////////////////////////////////////
-   // bl_signal_conditioner signal_conditioner with bandpass filter to limit
-   // the range within a lower and upper frequency bounds.
-   ////////////////////////////////////////////////////////////////////////////
-   class bl_signal_conditioner : public signal_conditioner
-   {
-   public:
-
-      using config = signal_conditioner::config;
-
-      template <typename Config>
-      bl_signal_conditioner(
-         Config const& conf
-       , frequency lowest_freq
-       , frequency highest_freq
-       , std::uint32_t sps
-      )
-       : signal_conditioner{conf, sps}
-       , _lp1{highest_freq * 2, sps}
-       , _lp2{lowest_freq / 2, sps}
-      {}
-
-      float operator()(float s)
-      {
-         // Bandpass filter
-         s = _lp1(s);
-         s -= _lp2(s);
-
-         return signal_conditioner::operator()(s);
-      }
-
-   private:
-
-      one_pole_lowpass        _lp1;
-      one_pole_lowpass        _lp2;
    };
 
    ////////////////////////////////////////////////////////////////////////////
@@ -108,28 +77,43 @@ namespace cycfi::q
    template <typename Config>
    inline signal_conditioner::signal_conditioner(
       Config const& conf
+    , frequency lowest_freq
+    , frequency highest_freq
     , std::uint32_t sps
    )
-    : _env{conf.env_release, sps}
+    : _clip{conf.pre_clip_level}
+    , _sm{lowest_freq + ((highest_freq - lowest_freq) / 2), sps}
+    , _env{lowest_freq.period()*0.6, sps}
     , _comp{conf.comp_threshold, conf.comp_slope}
     , _makeup_gain{conf.comp_gain}
-    , _gate{conf.gate_onset_threshold, conf.gate_release_threshold}
+    , _gate{
+         conf.gate_onset_threshold
+       , conf.gate_release_threshold
+       , conf.attack_width
+       , sps
+      }
     , _gate_env{500_us, conf.gate_release, sps}
    {
    }
 
    inline float signal_conditioner::operator()(float s)
    {
+      // Pre clip
+      s = _clip(s);
+
+      // Dynamic Smoother
+      s = _sm(s);
+
       // Signal envelope
       auto env = _env(std::abs(s));
 
       // Noise gate
-      auto gate = _gate(s, env);
+      auto gate = _gate(env);
       s *= _gate_env(gate);
 
-      // Compressor + makeup-gain + hard clip
+      // Compressor + makeup-gain
       auto env_db = decibel(env);
-      auto gain = float(_comp(env_db)) * _makeup_gain;
+      auto gain = as_float(_comp(env_db)) * _makeup_gain;
       s = s * gain;
 
       return s;

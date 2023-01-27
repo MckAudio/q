@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -28,7 +28,7 @@ namespace cycfi::q
    // the compressed or expanded gain, also in decibels. Simply multiply the
    // signal by the result converted to float (or double). For example:
    //
-   //    auto gain = float(comp(envelope));
+   //    auto gain = as_float(comp(envelope));
    //    auto left_out = left_signal * gain;
    //    auto right_out = right_signal * gain;
    //

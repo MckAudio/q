@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -7,9 +7,7 @@
 #include <q_io/audio_file.hpp>
 #include <q/fx/dynamic.hpp>
 #include <q/fx/envelope.hpp>
-#include <q/fx/moving_average.hpp>
 #include <q/fx/lowpass.hpp>
-#include <q/fx/special.hpp>
 #include <q/fx/biquad.hpp>
 #include <vector>
 #include <string>
@@ -57,7 +55,7 @@ void process(std::string name, q::duration period)
       out[ch1] = s;
 
       // Envelope
-      out[ch2] = float(env(s));
+      out[ch2] = as_float(env(s));
    }
 
    ////////////////////////////////////////////////////////////////////////////

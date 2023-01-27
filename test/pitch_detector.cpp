@@ -1,5 +1,5 @@
 /*=============================================================================
-   Copyright (c) 2014-2021 Joel de Guzman. All rights reserved.
+   Copyright (c) 2014-2022 Joel de Guzman. All rights reserved.
 
    Distributed under the MIT License [ https://opensource.org/licenses/MIT ]
 =============================================================================*/
@@ -39,17 +39,17 @@ test_result process(
 {
    if (verbosity > 1)
       std::cout << fixed << "Actual Frequency: "
-      << double(actual_frequency) << std::endl;
+      << as_double(actual_frequency) << std::endl;
 
    if (name.empty())
-      name = std::to_string(int(double(actual_frequency)));
+      name = std::to_string(int(as_double(actual_frequency)));
 
    ////////////////////////////////////////////////////////////////////////////
    // Process
 
-   q::pitch_detector pd(lowest_freq, highest_freq, sps, -45_dB);
-   auto result = test_result{};
-   auto frames = 0;
+   q::pitch_detector    pd(lowest_freq, highest_freq, sps, -45_dB);
+   auto                 result = test_result{};
+   auto                 frames = 0;
 
    for (auto i = 0; i != in.size(); ++i)
    {
@@ -63,7 +63,7 @@ test_result process(
          auto frequency = pd.get_frequency();
          if (frequency != 0.0f)
          {
-            auto error = 1200.0 * std::log2(frequency / double(actual_frequency));
+            auto error = 1200.0 * std::log2(frequency / as_double(actual_frequency));
             if (verbosity > 1)
             {
                std::cout
@@ -104,7 +104,7 @@ struct params
 std::vector<float>
 gen_harmonics(q::frequency freq, params const& params_)
 {
-   auto period = double(sps / freq);
+   auto period = as_double(sps / freq);
    float offset = params_._offset;
    std::size_t buff_size = sps; // 1 second
 
@@ -184,7 +184,7 @@ void process(
  , q::frequency lowest_freq
  , double ave_error_expected = 0.01
  , double min_error_expected = 0.01
- , double max_error_expected = 0.02
+ , double max_error_expected = 0.01
  , std::string name = ""
 )
 {
@@ -203,7 +203,7 @@ void process(
 {
    process(
            params_, actual_frequency, lowest_freq * 0.8, lowest_freq * 5
-           , 0.01, 0.01, 0.02, name
+           , 0.01, 0.01, 0.01, name
    );
 }
 
@@ -287,12 +287,12 @@ TEST_CASE("Test_B")
 
 TEST_CASE("Test_B_12th")
 {
-   process(params{}, b_12th, b);
+   process(params{}, b_12th, b, 0.01, 0.01, 0.016048);
 }
 
 TEST_CASE("Test_B_24th")
 {
-   process(params{}, b_24th, b, 0.011, 0.01, 0.11);
+   process(params{}, b_24th, b, 0.0363396, 0.01, 0.100026);
 }
 
 TEST_CASE("Test_high_E")
@@ -302,19 +302,19 @@ TEST_CASE("Test_high_E")
 
 TEST_CASE("Test_high_E_12th")
 {
-   process(params{}, high_e_12th, high_e);
+   process(params{}, high_e_12th, high_e, 0.01, 0.01, 0.0133378);
 }
 
 TEST_CASE("Test_high_E_24th")
 {
-   process(params{}, high_e_24th, high_e, 0.035, 0.01, 0.07);
+   process(params{}, high_e_24th, high_e, 0.023045, 0.01, 0.0649471);
 }
 
 TEST_CASE("Test_non_integer_harmonics")
 {
    params params_;
    params_._2nd_harmonic = 2.003;
-   process(params_, low_e, low_e, 1.025, 0.951, 1.18, "non_integer");
+   process(params_, low_e, low_e, 1.025, 0.951, 1.12708, "non_integer");
 }
 
 TEST_CASE("Test_phase_offsets")
