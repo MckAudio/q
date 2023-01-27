@@ -8,7 +8,7 @@
 
 #include <q/utility/fractional_ring_buffer.hpp>
 #include <q/support/base.hpp>
-
+#include <q/support/frequency.hpp>
 namespace cycfi::q
 {
    ////////////////////////////////////////////////////////////////////////////
